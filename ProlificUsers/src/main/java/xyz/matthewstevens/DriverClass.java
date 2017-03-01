@@ -66,7 +66,7 @@ public class DriverClass extends Configured implements Tool {
         }
     }
 
-
+    //found this on Stack Overflow, gets largest elements in a Hash Map
     private static <K, V extends Comparable<? super V>> List<Map.Entry<K, V>>
     findGreatest(Map<K, V> map, int n)
     {

@@ -14,10 +14,8 @@ public class ReduceClass<KEY> extends Reducer<KEY, DoubleWritable,
     public void reduce(KEY key, Iterable<DoubleWritable> values,
                        Context context) throws IOException, InterruptedException {
         double sum = 0;
-        double cardinal = 0;
         for (DoubleWritable val : values) {
             sum += val.get();
-            cardinal += 1;
         }
         result.set(sum);
         context.write(key, result);

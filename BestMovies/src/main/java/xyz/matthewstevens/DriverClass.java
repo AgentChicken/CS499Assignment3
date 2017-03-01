@@ -14,9 +14,7 @@ import org.apache.hadoop.util.ToolRunner;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Collections;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.*;
 
 public class DriverClass extends Configured implements Tool {
     public int run(String[] args) throws Exception {
@@ -40,9 +38,10 @@ public class DriverClass extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         ToolRunner.run(new DriverClass(), args);
         Vector vector = new Vector();
+        ArrayList movieIds = new ArrayList();
         try{
             BufferedReader buf = new BufferedReader(new FileReader(args[1] + "/part-r-00000"));
-            TreeMap<Double, String> treeMap = new TreeMap<>(Collections.<Double>reverseOrder());
+            HashMap<String, Double> hashMap = new HashMap<>();
             String lineJustFetched;
             String[] wordsArray;
 
@@ -52,11 +51,20 @@ public class DriverClass extends Configured implements Tool {
                     break;
                 }else{
                     wordsArray = lineJustFetched.split("\t");
-                    treeMap.put(Double.parseDouble(wordsArray[1]), wordsArray[0]);
+                    hashMap.put(wordsArray[0], Double.parseDouble(wordsArray[1]));
                 }
             }
 
-            vector = new Vector(treeMap.values());
+            List<Map.Entry<String, Double>> greatest = findGreatest(hashMap, 10);
+
+            for(int i = 0; i < 10; i++)
+            {
+                movieIds.add(greatest.get(i).getKey());
+            }
+
+            //System.out.println(greatest);
+
+            vector = new Vector(hashMap.values());
 
             buf.close();
 
@@ -87,9 +95,38 @@ public class DriverClass extends Configured implements Tool {
             e.printStackTrace();
         }
 
-        for(int i = 0; i < 10; i++)
+        for(int i = 9; i > -1; i--)
         {
-            System.out.println((i+1) + ") " + movieTitles.get(vector.get(i)));
+            System.out.println((10 - i) + ") " + movieTitles.get(movieIds.get(i)));
         }
+    }
+
+    //found this on Stack Overflow, gets largestentries in a list
+    private static <K, V extends Comparable<? super V>> List<Map.Entry<K, V>>
+    findGreatest(Map<K, V> map, int n)
+    {
+        Comparator<? super Map.Entry<K, V>> comparator =
+                (Comparator<Map.Entry<K, V>>) (e0, e1) -> {
+                    V v0 = e0.getValue();
+                    V v1 = e1.getValue();
+                    return v0.compareTo(v1);
+                };
+        PriorityQueue<Map.Entry<K, V>> highest =
+                new PriorityQueue<>(n, comparator);
+        for (Map.Entry<K, V> entry : map.entrySet())
+        {
+            highest.offer(entry);
+            while (highest.size() > n)
+            {
+                highest.poll();
+            }
+        }
+
+        List<Map.Entry<K, V>> result = new ArrayList<>();
+        while (highest.size() > 0)
+        {
+            result.add(highest.poll());
+        }
+        return result;
     }
 }

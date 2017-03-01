@@ -15,8 +15,6 @@ public class MapClass extends Mapper<LongWritable, Text, Text, DoubleWritable> {
     @Override
     protected void map(LongWritable key, Text value, Context context)
             throws IOException, InterruptedException {
-        // value is tab separated values: word, year, occurrences, #books, #pages
-        // we project out (word, occurrences) so we can sum over all years
         String[] split = value.toString().split(",");
         word.set(split[0]);
         if (split.length > 2) {
@@ -24,7 +22,6 @@ public class MapClass extends Mapper<LongWritable, Text, Text, DoubleWritable> {
                 count.set(Double.parseDouble(split[2]));
                 context.write(word, count);
             } catch (NumberFormatException e) {
-                // cannot parse - ignore
             }
         }
     }
